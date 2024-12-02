@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import defultImg from '../../../public/404.jpg';
 import './Card.css';
 import { Rate } from 'antd';
 import {
@@ -34,7 +35,11 @@ function Card({ movies, rateMovie, ratedMovies, isActiveRated }) {
             <div className='card__item' key={movie.id}>
               <div className='card__img'>
                 <img
-                  src={`https://image.tmdb.org/t/p/w200${movie.backdrop_path}`}
+                  src={
+                    movie.backdrop_path
+                      ? `https://image.tmdb.org/t/p/w200${movie.backdrop_path}`
+                      : defultImg
+                  }
                   alt='Movie Backdrop'
                 />
               </div>
