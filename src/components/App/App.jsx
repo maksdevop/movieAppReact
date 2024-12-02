@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
 
 import './App.css';
-import Header from './components/Header/Header.jsx';
-import Cards from './components/Cards/Cards.jsx';
+import Header from '../Header/Header.jsx';
+import Cards from '../Cards/Cards.jsx';
 import {
   fetchGuestSession,
   searchFilms,
   getFilms,
   rateMovie,
-} from './utils/api.js';
+} from '../../utils/api.js';
 
 import { Pagination, Spin } from 'antd';
 import { Offline, Online } from 'react-detect-offline';
