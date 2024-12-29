@@ -1,13 +1,24 @@
+import React, { FC } from 'react';
 import './Header.css';
-import InputSearch from '../InputSearch/InputSearch.jsx';
-function Header({
+import InputSearch from '../InputSearch/InputSearch.tsx';
+
+type HeaderProps = {
+  setCurrentPage: (page: number) => void;
+  setSearchQuery: (query: string) => void;
+  isActiveRated: boolean;
+  isActiveSearch: boolean;
+  toggleActiveSearch: () => void;
+  toggleActiveRated: () => void;
+};
+
+const Header: FC<HeaderProps> = ({
   setCurrentPage,
   setSearchQuery,
   isActiveRated,
   isActiveSearch,
   toggleActiveSearch,
   toggleActiveRated,
-}) {
+}) => {
   return (
     <div className='header'>
       <div className='tabs'>
@@ -32,6 +43,6 @@ function Header({
       )}
     </div>
   );
-}
+};
 
 export default Header;

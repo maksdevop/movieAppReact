@@ -1,17 +1,29 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, FC, ChangeEvent } from 'react';
 import '../InputSearch/InputSearch.css';
 import debounce from 'lodash.debounce';
-function InputSearch({ setCurrentPage, setSearchQuery }) {
-  const [inputValue, setInputValue] = useState('');
+import React from 'react';
+
+type InputSearchProps = {
+  setCurrentPage: (page: number) => void;
+  setSearchQuery: (query: string) => void;
+};
+
+const InputSearch: FC<InputSearchProps> = ({
+  setCurrentPage,
+  setSearchQuery,
+}) => {
+
+  const [inputValue, setInputValue] = useState<string>('');
+  
   const debouncedSearch = useCallback(
-    debounce((query) => {
+    debounce((query: string) => {
       setSearchQuery(query);
       setCurrentPage(1);
     }, 1500),
     [],
   );
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
     setInputValue(query);
     debouncedSearch(query);
@@ -27,6 +39,6 @@ function InputSearch({ setCurrentPage, setSearchQuery }) {
       />
     </form>
   );
-}
+};
 
 export default InputSearch;

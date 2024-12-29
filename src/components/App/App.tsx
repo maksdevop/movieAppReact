@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
+import React from 'react';
 
 import './App.css';
 import Header from '../Header/Header.jsx';
@@ -8,27 +9,40 @@ import {
   searchFilms,
   getFilms,
   rateMovie,
-} from '../../utils/api.js';
+} from '../../utils/api.ts';
 
 import { Pagination, Spin } from 'antd';
 import { Offline, Online } from 'react-detect-offline';
 import { TailSpin } from 'react-loader-spinner';
 
-function App() {
+type Movie = {
+  id: number;
+  title: string;
+  year: number;
+  rating: number;
+  backdrop_path?: string;
+  original_title: string;
+  vote_average?: number;
+  release_date: string;
+  genre_ids: number[];
+  overview: string;
+};
+
+const App: FC = () => {
   const API_KEY = '5ace110a55bdf6e3286b6be3fe82e05d';
   const GUEST_SESSION_URL = `https://api.themoviedb.org/3/authentication/guest_session/new?api_key=${API_KEY}`;
-  const [movies, setMovies] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [currentPageRated, setCurrentPageRated] = useState(1);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [totalPages, setTotalPages] = useState(0);
-  const [totalPagesRated, setTotalPagesRated] = useState(0);
-  const [guestSessionId, setGuestSessionId] = useState(null);
-  const [isActiveSearch, setIsActiveSearch] = useState(true);
-  const [isActiveRated, setIsActiveRated] = useState(false);
-  const [ratedMovies, setRatedMovies] = useState([]);
-  const [rating, setRating] = useState(null);
+  const [movies, setMovies] = useState<Movie[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [currentPageRated, setCurrentPageRated] = useState<number>(1);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [totalPages, setTotalPages] = useState<number>(0);
+  const [totalPagesRated, setTotalPagesRated] = useState<number>(0);
+  const [guestSessionId, setGuestSessionId] = useState<string | null>(null);
+  const [isActiveSearch, setIsActiveSearch] = useState<boolean>(true);
+  const [isActiveRated, setIsActiveRated] = useState<boolean>(false);
+  const [ratedMovies, setRatedMovies] = useState<Movie[]>([]);
+  const [rating, setRating] = useState<number | null>(null);
 
   const toggleActiveSearch = () => {
     setIsActiveSearch(true);
@@ -57,7 +71,7 @@ function App() {
   };
 
   useEffect(() => {
-    if (isActiveRated && guestSessionId && rating > 0) {
+    if (isActiveRated && guestSessionId && rating && rating > 0) {
       getFilms(
         guestSessionId,
         currentPageRated,
@@ -127,6 +141,6 @@ function App() {
       </Offline>
     </div>
   );
-}
+};
 
 export default App;

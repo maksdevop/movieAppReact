@@ -1,5 +1,7 @@
+import React, { FC } from 'react';
+
 import { useEffect, useState } from 'react';
-import defultImg from '../../../public/404.jpg';
+import defultImg from '/404.jpg';
 import './Card.css';
 import { Rate } from 'antd';
 import {
@@ -9,8 +11,38 @@ import {
   formatDate,
 } from '../../utils/cardFunctions';
 
-function Card({ movies, rateMovie, ratedMovies, isActiveRated }) {
-  const [genres, setGenres] = useState([]);
+type Movie = {
+  id: number;
+  title: string;
+  year: number;
+  rating: number;
+  backdrop_path?: string;
+  original_title?: string;
+  vote_average?: number | undefined;
+  release_date?: string;
+  genre_ids?: number[];
+  overview?: string;
+};
+
+type CardProps = {
+  isActiveRated: boolean;
+  ratedMovies: Movie[];
+  rateMovie: (movie: Movie) => void;
+  movies: Movie[];
+};
+
+type Genres = {
+  id: number;
+  name: string;
+};
+
+const Card: FC<CardProps> = ({
+  movies,
+  rateMovie,
+  ratedMovies,
+  isActiveRated,
+}) => {
+  const [genres, setGenres] = useState<Genres[]>([]);
 
   useEffect(() => {
     const options = {
@@ -27,7 +59,7 @@ function Card({ movies, rateMovie, ratedMovies, isActiveRated }) {
       .catch((err) => console.error(err));
   }, []);
 
-  const renderMovies = (movieList) => {
+  const renderMovies = (movieList: Movie[]) => {
     return (
       <div className='card'>
         <div className='card__wrap'>
@@ -46,11 +78,13 @@ function Card({ movies, rateMovie, ratedMovies, isActiveRated }) {
               <div className='card__info'>
                 <div className='card__info-wrap'>
                   <h3 className='card__info-title'>{movie.original_title}</h3>
-                  <div
-                    className={`card__info-rating ${getRatingColor(movie.vote_average)}`}
-                  >
-                    {movie.vote_average.toFixed(1)}
-                  </div>
+                  {movie.vote_average !== undefined && (
+                    <div
+                      className={`card__info-rating ${getRatingColor(movie.vote_average)}`}
+                    >
+                      {movie.vote_average.toFixed(1)}
+                    </div>
+                  )}
                 </div>
                 <p className='card__info-date'>
                   {formatDate(movie.release_date)}
@@ -97,6 +131,6 @@ function Card({ movies, rateMovie, ratedMovies, isActiveRated }) {
       )}
     </>
   );
-}
+};
 
 export default Card;
