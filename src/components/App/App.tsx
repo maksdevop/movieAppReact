@@ -49,6 +49,23 @@ const App: FC = () => {
   };
 
   useEffect(() => {
+    return () => {
+      sessionStorage.removeItem('searchInput');
+    };
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('beforeunload', () => {
+      sessionStorage.removeItem('searchInput');
+    });
+    return () => {
+      window.removeEventListener('beforeunload', () => {
+        sessionStorage.removeItem('searchInput');
+      });
+    };
+  }, []);
+
+  useEffect(() => {
     fetchGuestSession(setGuestSessionId);
   }, [GUEST_SESSION_URL]);
 

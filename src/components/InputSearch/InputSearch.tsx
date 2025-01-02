@@ -1,4 +1,4 @@
-import { useCallback, useState, FC, ChangeEvent } from 'react';
+import { useCallback, useState, FC, ChangeEvent, useEffect } from 'react';
 import '../InputSearch/InputSearch.css';
 import debounce from 'lodash.debounce';
 import React from 'react';
@@ -12,9 +12,9 @@ const InputSearch: FC<InputSearchProps> = ({
   setCurrentPage,
   setSearchQuery,
 }) => {
-
-  const [inputValue, setInputValue] = useState<string>('');
-  
+  const [inputValue, setInputValue] = useState<string>(() => {
+    return sessionStorage.getItem('searchInput') || '';
+  });
   const debouncedSearch = useCallback(
     debounce((query: string) => {
       setSearchQuery(query);
@@ -23,9 +23,17 @@ const InputSearch: FC<InputSearchProps> = ({
     [],
   );
 
+  useEffect(() => {
+    const savedInput = sessionStorage.getItem('searchInput');
+    if (savedInput) {
+      setInputValue(savedInput);
+    }
+  }, []);
+
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
     setInputValue(query);
+    sessionStorage.setItem('searchInput', query);
     debouncedSearch(query);
   };
 
