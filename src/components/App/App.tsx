@@ -49,19 +49,12 @@ const App: FC = () => {
   };
 
   useEffect(() => {
-    return () => {
+    const handleBeforeUnload = () => {
       sessionStorage.removeItem('searchInput');
     };
-  }, []);
-
-  useEffect(() => {
-    window.addEventListener('beforeunload', () => {
-      sessionStorage.removeItem('searchInput');
-    });
+    window.addEventListener('beforeunload', handleBeforeUnload);
     return () => {
-      window.removeEventListener('beforeunload', () => {
-        sessionStorage.removeItem('searchInput');
-      });
+      window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, []);
 
