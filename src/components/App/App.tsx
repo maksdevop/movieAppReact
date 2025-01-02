@@ -1,16 +1,13 @@
-import { FC, useEffect, useState } from 'react';
-import React from 'react';
-
+import React, { FC, useEffect, useState } from 'react';
 import './App.css';
 import Header from '../Header/Header.jsx';
-import Cards from '../Cards/Cards.jsx';
 import {
   fetchGuestSession,
   searchFilms,
   getFilms,
   rateMovie,
 } from '../../utils/api.ts';
-
+import Card from '../Card/Card.tsx';
 import { Pagination, Spin } from 'antd';
 import { Offline, Online } from 'react-detect-offline';
 import { TailSpin } from 'react-loader-spinner';
@@ -39,19 +36,16 @@ const App: FC = () => {
   const [totalPages, setTotalPages] = useState<number>(0);
   const [totalPagesRated, setTotalPagesRated] = useState<number>(0);
   const [guestSessionId, setGuestSessionId] = useState<string | null>(null);
-  const [isActiveSearch, setIsActiveSearch] = useState<boolean>(true);
-  const [isActiveRated, setIsActiveRated] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<string>('search');
   const [ratedMovies, setRatedMovies] = useState<Movie[]>([]);
   const [rating, setRating] = useState<number | null>(null);
 
   const toggleActiveSearch = () => {
-    setIsActiveSearch(true);
-    setIsActiveRated(false);
+    setActiveTab('search');
   };
 
   const toggleActiveRated = () => {
-    setIsActiveSearch(false);
-    setIsActiveRated(true);
+    setActiveTab('rated');
   };
 
   useEffect(() => {
@@ -67,11 +61,11 @@ const App: FC = () => {
   }, [currentPage, searchQuery]);
 
   const handlePageChange = (page) => {
-    isActiveSearch ? setCurrentPage(page) : setCurrentPageRated(page);
+    activeTab === 'search' ? setCurrentPage(page) : setCurrentPageRated(page);
   };
 
   useEffect(() => {
-    if (isActiveRated && guestSessionId && rating && rating > 0) {
+    if (activeTab === 'rated' && guestSessionId && rating && rating > 0) {
       getFilms(
         guestSessionId,
         currentPageRated,
@@ -79,7 +73,7 @@ const App: FC = () => {
         setTotalPagesRated,
       );
     }
-  }, [isActiveRated, guestSessionId, rating, currentPageRated]);
+  }, [activeTab, guestSessionId, rating, currentPageRated]);
 
   return (
     <div>
@@ -89,16 +83,16 @@ const App: FC = () => {
           setCurrentPage={setCurrentPage}
           toggleActiveSearch={toggleActiveSearch}
           toggleActiveRated={toggleActiveRated}
-          isActiveSearch={isActiveSearch}
-          isActiveRated={isActiveRated}
+          isActiveSearch={activeTab === 'search'}
+          isActiveRated={activeTab === 'rated'}
         />
         {isLoading && (
           <div className='loading'>
             <Spin size='large' />
           </div>
         )}
-        {isActiveSearch && (
-          <Cards
+        {activeTab === 'search' && movies.length > 0 && (
+          <Card
             movies={movies}
             rateMovie={(movie) =>
               rateMovie(
@@ -112,21 +106,27 @@ const App: FC = () => {
             }
           />
         )}
-
-        {isActiveRated && (
-          <Cards isActiveRated={isActiveRated} ratedMovies={ratedMovies} />
+        {activeTab === 'search' && movies.length === 0 && (
+          <h2 style={{ color: 'black', textAlign: 'center', margin: '15px' }}>
+            No movies found!
+          </h2>
         )}
-
-        {movies.length && (
-          <Pagination
-            align='center'
-            current={isActiveSearch ? currentPage : currentPageRated}
-            pageSize={1}
-            total={isActiveSearch ? totalPages : totalPagesRated}
-            onChange={handlePageChange}
-            showSizeChanger={false}
-          />
+        {activeTab === 'rated' && ratedMovies.length > 0 && (
+          <Card ratedMovies={ratedMovies} />
         )}
+        {activeTab === 'rated' && ratedMovies.length === 0 && (
+          <h2 style={{ color: 'black', textAlign: 'center', margin: '15px' }}>
+            No rated movies!
+          </h2>
+        )}
+        <Pagination
+          align='center'
+          current={activeTab === 'search' ? currentPage : currentPageRated}
+          pageSize={1}
+          total={activeTab === 'search' ? totalPages : totalPagesRated}
+          onChange={handlePageChange}
+          showSizeChanger={false}
+        />
       </Online>
       <Offline polling={{ interval: 60000, timeout: 15000 }}>
         <h1 className='internet-title'>No internet connection</h1>

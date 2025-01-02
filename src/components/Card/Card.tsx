@@ -1,7 +1,5 @@
-import React, { FC } from 'react';
-
-import { useEffect, useState } from 'react';
-import defultImg from '/404.jpg';
+import React, { FC, useEffect, useState } from 'react';
+// import defultImg from 'public/404.jpg';
 import './Card.css';
 import { Rate } from 'antd';
 import {
@@ -17,18 +15,17 @@ type Movie = {
   year: number;
   rating: number;
   backdrop_path?: string;
-  original_title?: string;
-  vote_average?: number | undefined;
+  original_title: string;
+  vote_average?: number;
   release_date?: string;
   genre_ids?: number[];
   overview?: string;
 };
 
 type CardProps = {
-  isActiveRated: boolean;
-  ratedMovies: Movie[];
-  rateMovie: (movie: Movie) => void;
-  movies: Movie[];
+  movies?: Movie[];
+  ratedMovies?: Movie[];
+  rateMovie?: (movie: Movie) => void;
 };
 
 type Genres = {
@@ -37,20 +34,19 @@ type Genres = {
 };
 
 const Card: FC<CardProps> = ({
-  movies,
-  rateMovie,
-  ratedMovies,
-  isActiveRated,
+  movies = [],
+  ratedMovies = [],
+  rateMovie = () => {},
 }) => {
   const [genres, setGenres] = useState<Genres[]>([]);
+  const defultImg = '/404.jpg';
 
   useEffect(() => {
     const options = {
       method: 'GET',
       headers: {
         accept: 'application/json',
-        Authorization:
-          'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI1YWNlMTEwYTU1YmRmNmUzMjg2YjZiZTNmZTgyZTA1ZCIsIm5iZiI6MTczMjQ1MDc0OS4yNjk3OTQ3LCJzdWIiOiI2NzNiODRhMjRiOGVhMDYxZjUzYWI2NTciLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.z0gZ2N7gxkcruqv0gGfG18niwb9K5FujcoKNjwf7y_M',
+        Authorization: 'Bearer YOUR_BEARER_TOKEN',
       },
     };
     fetch('https://api.themoviedb.org/3/genre/movie/list?language=en', options)
@@ -80,7 +76,9 @@ const Card: FC<CardProps> = ({
                   <h3 className='card__info-title'>{movie.original_title}</h3>
                   {movie.vote_average !== undefined && (
                     <div
-                      className={`card__info-rating ${getRatingColor(movie.vote_average)}`}
+                      className={`card__info-rating ${getRatingColor(
+                        movie.vote_average,
+                      )}`}
                     >
                       {movie.vote_average.toFixed(1)}
                     </div>
@@ -104,10 +102,8 @@ const Card: FC<CardProps> = ({
                 <Rate
                   count={10}
                   allowHalf={true}
-                  value={isActiveRated ? movie.rating : movie.rating}
-                  onChange={(value) =>
-                    !isActiveRated && rateMovie({ ...movie, rating: value })
-                  }
+                  value={movie.rating}
+                  onChange={(value) => rateMovie({ ...movie, rating: value })}
                 />
               </div>
             </div>
@@ -116,18 +112,17 @@ const Card: FC<CardProps> = ({
       </div>
     );
   };
+
   return (
     <>
-      {isActiveRated ? (
-        ratedMovies.length > 0 ? (
-          renderMovies(ratedMovies)
-        ) : (
-          <h2 style={{ color: 'black', textAlign: 'center', margin: '15px' }}>
-            No rated movies!
-          </h2>
-        )
-      ) : (
+      {ratedMovies.length > 0 ? (
+        renderMovies(ratedMovies)
+      ) : movies.length > 0 ? (
         renderMovies(movies)
+      ) : (
+        <h2 style={{ color: 'black', textAlign: 'center', margin: '15px' }}>
+          No movies found!
+        </h2>
       )}
     </>
   );
