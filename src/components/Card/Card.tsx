@@ -1,5 +1,4 @@
 import React, { FC, useEffect, useState } from 'react';
-// import defultImg from 'public/404.jpg';
 import './Card.css';
 import { Rate } from 'antd';
 import {
@@ -40,19 +39,26 @@ const Card: FC<CardProps> = ({
 }) => {
   const [genres, setGenres] = useState<Genres[]>([]);
   const defultImg = '/404.jpg';
+  const [localRatedMovies, setLocalRatedMovies] = useState<Movie[]>([]);
 
   useEffect(() => {
     const options = {
       method: 'GET',
       headers: {
         accept: 'application/json',
-        Authorization: 'Bearer YOUR_BEARER_TOKEN',
+        Authorization:
+          'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI1YWNlMTEwYTU1YmRmNmUzMjg2YjZiZTNmZTgyZTA1ZCIsIm5iZiI6MTczMTk1MzgyNi42Nywic3ViIjoiNjczYjg0YTI0YjhlYTA2MWY1M2FiNjU3Iiwic2NvcGVzIjpbImFwaV9yZWFkIl0sInZlcnNpb24iOjF9.VO-IkhhSSOVJA6f0oBAw-o0cN1TgUqpWLdLhuj3U-mI',
       },
     };
     fetch('https://api.themoviedb.org/3/genre/movie/list?language=en', options)
       .then((res) => res.json())
       .then((res) => setGenres(res.genres))
       .catch((err) => console.error(err));
+
+    const savedRatedMovies = localStorage.getItem('ratedMovies');
+    if (savedRatedMovies) {
+      setLocalRatedMovies(JSON.parse(savedRatedMovies));
+    }
   }, []);
 
   const renderMovies = (movieList: Movie[]) => {

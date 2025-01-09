@@ -1,12 +1,27 @@
 import { API_KEY, GUEST_SESSION_URL } from './apiKey';
+const timeId = localStorage.getItem('timeSessionId');
 
-export const fetchGuestSession = (setGuestSessionId) => {
-  fetch(GUEST_SESSION_URL)
-    .then((response) => response.json())
-    .then((data) => setGuestSessionId(data.guest_session_id))
-    .catch((error) => {
+export const fetchGuestSession = async (setGuestSessionId) => {
+  const sessionId = localStorage.getItem('sessionId');
+  const timeId = localStorage.getItem('timeSessionId');
+
+  if (!sessionId || (timeId && Date.now() - Number(timeId) > 3600000)) {
+    try {
+      const response = await fetch(GUEST_SESSION_URL);
+      const data = await response.json();
+      localStorage.setItem('sessionId', data.guest_session_id);
+      localStorage.setItem('timeSessionId', String(Date.now()));
+      setGuestSessionId(data.guest_session_id);
+      console.log(data.guest_session_id);
+    } catch (error) {
       console.error('Ошибка при создании гостевой сессии:', error);
-    });
+    }
+  } else if (sessionId) {
+    setGuestSessionId(sessionId);
+    console.log(sessionId);
+  } else {
+    console.log('net');
+  }
 };
 
 export const searchFilms = (url, setMovies, setIsLoading, setTotalPages) => {
@@ -20,7 +35,13 @@ export const searchFilms = (url, setMovies, setIsLoading, setTotalPages) => {
   fetch(url, options)
     .then((res) => res.json())
     .then((res) => {
-      setMovies(res.results);
+      const savedRatings = JSON.parse(localStorage.getItem('ratings') || '{}');
+      const moviesWithRatings = res.results.map((movie) => ({
+        ...movie,
+        rating: savedRatings[movie.id] || 0,
+      }));
+
+      setMovies(moviesWithRatings);
       const pages = res.total_pages > 500 ? 500 : res.total_pages;
       setTotalPages(pages);
       setIsLoading(false);
@@ -76,6 +97,7 @@ export const rateMovie = (
   setRatedMovies,
   setRating,
   movies,
+  ratedMovies,
 ) => {
   const { id, rating } = movie;
   if (rating > 0) {
@@ -97,7 +119,21 @@ export const rateMovie = (
             films.id === movie.id ? { ...films, rating } : films,
           ),
         );
+        setRatedMovies((prevRatedMovies) => {
+          const updatedRatedMovies = [...prevRatedMovies, { ...movie, rating }];
+          // Сохранение оцененных фильмов в localStorage
+          localStorage.setItem(
+            'ratedMovies',
+            JSON.stringify(updatedRatedMovies),
+          );
+          return updatedRatedMovies;
+        });
         setRating(rating);
+        const savedRatings = JSON.parse(
+          localStorage.getItem('ratings') || '{}',
+        );
+        savedRatings[movie.id] = rating;
+        localStorage.setItem('ratings', JSON.stringify(savedRatings));
       })
       .catch((err) => {
         console.error('Ошибка при оценке фильма:', err);
@@ -127,9 +163,20 @@ export const rateMovie = (
             }
             return movie;
           });
-
+          const savedRatings = JSON.parse(
+            localStorage.getItem('ratings') || '{}',
+          );
+          delete savedRatings[movie.id];
+          localStorage.setItem('ratings', JSON.stringify(savedRatings));
           setMovies(updatedMovies);
           setRating(null);
+
+          // Обновление localStorage после удаления фильма
+          localStorage.setItem(
+            'ratedMovies',
+            JSON.stringify(updatedRatedMovies),
+          );
+
           return updatedRatedMovies.length ? updatedRatedMovies : [];
         });
       })

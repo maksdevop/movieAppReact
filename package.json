@@ -11,7 +11,7 @@
     "lint": "eslint src/**/*.{js,jsx}",
     "lint:fix": "eslint src/**/*.{js,jsx} --fix",
     "format": "prettier --write src/**/*.{js,jsx,ts,tsx}",
-    "husky": "husky init",
+    "prepare": "husky",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
   },
@@ -42,8 +42,16 @@
     "eslint-plugin-react-hooks": "^4.6.2",
     "gh-pages": "^6.2.0",
     "husky": "^9.1.7",
-    "lint-staged": "^15.2.10",
+    "install": "^0.13.0",
+    "lint-staged": "^15.3.0",
+    "npx": "^10.2.2",
     "prettier": "^3.3.3",
     "typescript": "^5.7.2"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "git add"
+    ]
   }
 }

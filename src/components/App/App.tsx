@@ -75,6 +75,13 @@ const App: FC = () => {
   };
 
   useEffect(() => {
+    const savedRatedMovies = localStorage.getItem('ratedMovies');
+    if (savedRatedMovies) {
+      setRatedMovies(JSON.parse(savedRatedMovies));
+    }
+  }, []);
+
+  useEffect(() => {
     if (activeTab === 'rated' && guestSessionId && rating && rating > 0) {
       getFilms(
         guestSessionId,
@@ -112,6 +119,7 @@ const App: FC = () => {
                 setRatedMovies,
                 setRating,
                 movies,
+                ratedMovies,
               )
             }
           />
@@ -124,6 +132,7 @@ const App: FC = () => {
         {activeTab === 'rated' && ratedMovies.length > 0 && (
           <Card ratedMovies={ratedMovies} />
         )}
+
         {activeTab === 'rated' && ratedMovies.length === 0 && (
           <h2 style={{ color: 'black', textAlign: 'center', margin: '15px' }}>
             No rated movies!
