@@ -42,7 +42,6 @@
     "eslint-plugin-react-hooks": "^4.6.2",
     "gh-pages": "^6.2.0",
     "husky": "^9.1.7",
-    "install": "^0.13.0",
     "lint-staged": "^15.3.0",
     "npx": "^10.2.2",
     "prettier": "^3.3.3",
